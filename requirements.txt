@@ -5,4 +5,5 @@ scipy==0.17.1
 six==1.10.0
 slacker==0.9.21
 Theano==0.8.2
+uuid==1.30
 websocket-client==0.37.0
