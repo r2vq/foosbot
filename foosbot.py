@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import slacker
-# import json
 import websocket
 import slackparser
 import json

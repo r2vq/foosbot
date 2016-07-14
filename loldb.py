@@ -3,6 +3,7 @@ import ranking
 import numpy
 import collections
 import datetime
+import uuid
 
 
 _dbfile = 'foosdb.pickle'
@@ -72,13 +73,11 @@ def getlastgameall():
 
 
 def _newid():
-    return ''.join(numpy.random.choice(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'], 8))
+    return str(uuid.uuid4())
 
 
 def addmatch(m):
-    mid = None
-    while mid is None or mid in _getdb()['matches']:
-        mid = _newid()
+    mid = _newid()
 
     _getdb()['matches'][mid] = m
     _commitback()

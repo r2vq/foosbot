@@ -105,7 +105,7 @@ def formatRanking(slack, d, mc, lastg):
     allusers = slack.users.list().body
 
     now = datetime.datetime.now()
-    daysall = datetime.timedelta(days=30)
+    daysall = datetime.timedelta(days=150)
     days10 = datetime.timedelta(days=7)
 
     if not 'ok' in allusers:
@@ -121,10 +121,6 @@ def formatRanking(slack, d, mc, lastg):
         if mc[n[0]] < 3:
             bad_neg.append(name)
             continue
-        elif mc[n[0]] < 10:
-            if timediff > days10:
-                bad_neg.append(name)
-                continue
         else:
             if timediff > daysall:
                 continue
