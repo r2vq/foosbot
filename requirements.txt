@@ -1,0 +1,8 @@
+numpy==1.11.1
+PyYAML==3.11
+requests==2.10.0
+scipy==0.17.1
+six==1.10.0
+slacker==0.9.21
+Theano==0.8.2
+websocket-client==0.37.0
