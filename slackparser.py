@@ -228,20 +228,30 @@ def processStats(slack, args, user):
     allusers = slack.users.list().body
 
     m = loldb.getmatches()
-    mc = loldb.getgamecounts()[uid]
-    lg = loldb.getlastgame(uid)
-    td = theanorank.getRanking(m)
-    bw = theanorank.getBestWorst(m, uid)
+    gameCountsList = loldb.getgamecounts()
+    if uid in gameCountsList:
+        mc = gameCountsList[uid]
+    else:
+        mc = 0
+    if mc != 0:
+        lg = loldb.getlastgame(uid)
+        td = theanorank.getRanking(m)
+        bw = theanorank.getBestWorst(m, uid)
+        r1ta = "Skill level: %.1f" % (10.0 + (10.0 * td[uid]))
+        r2ta = "Last match: %s" % (formatMatch(allusers, lg))
 
     nn = getNiceName(allusers, uid)
 
     r1t = "Stats for %s" % nn
     div = '-' * (len(r1t))
-    r1ta = "Skill level: %.1f" % (10.0 + (10.0 * td[uid]))
     r2t = "Matches played: %i" % (mc)
-    r2ta = "Last match: %s" % (formatMatch(allusers, lg))
-
-    allt = [r1t, div, r1ta, r2t, r2ta]
+    allt = [r1t, div]
+    if mc != 0:
+        allt.append(r1ta)
+        allt.append(r2t)
+        allt.append(r2ta)
+    else:
+        allt.append(r2t)
 
     if mc > 1:
         r3t = "Best recent match: %s" % (formatMatch(allusers, bw[-1][1]))
