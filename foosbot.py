@@ -76,28 +76,31 @@ def run_bot():
     ws = websocket.WebSocketApp(wsurl, on_message=onrecv,
                                 on_error=onerr, on_close=onclose)
 
-    ws.run_forever()
+    ws.run_forever(http_proxy_port=4443)
 
 
-mangleconfig(config)
+def runSetup():
+    mangleconfig(config)
 
-failcount = 0
-lastfail = datetime.datetime.now()
-while True:
-    print "Connecting"
-    run_bot()
-    print "Connection lost..."
-    now = datetime.datetime.now()
-    timeran = now - lastfail
-    lastfail = now
-    if timeran.total_seconds() < 3600:
-        failcount += 1
-    else:
-        failcount = 0
+    failcount = 0
+    lastfail = datetime.datetime.now()
+    while True:
+        print "Connecting"
+        run_bot()
+        print "Connection lost..."
+        now = datetime.datetime.now()
+        timeran = now - lastfail
+        lastfail = now
+        if timeran.total_seconds() < 3600:
+            failcount += 1
+        else:
+            failcount = 0
 
-    if failcount > 10:
-        print "Too many failures, exiting"
-        break
-    else:
-        print "Will reconnect in 60 seconds"
-        time.sleep(60)
+        if failcount > 10:
+            print "Too many failures, exiting"
+            break
+        else:
+            print "Will reconnect in 60 seconds"
+            time.sleep(60)
+
+runSetup()
