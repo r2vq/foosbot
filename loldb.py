@@ -1,51 +1,37 @@
 import pickle
 import ranking
+import core
 import numpy
 import collections
 import datetime
-import uuid
+import dateutil.parser
 
 
-_dbfile = 'foosdb.pickle'
-_dbhandle = None
+def getrankings(f):
+    return ranking.getRankings(getmatches(f))
 
 
-def _getdb():
-    global _dbhandle
-    if _dbhandle is None:
-        try:
-            _dbhandle = pickle.load(open(_dbfile))
-        except:
-            print "Unable to load database, creating new one"
-            _dbhandle = _newdb()
-    return _dbhandle
+def getmatches(firebase):
+    fMatches = firebase.get('/matches', None)
+    matchObjs = []
+    if fMatches:
+        for match in fMatches.values():
+            matchObjs.append(core.Match(
+                match['players1'],
+                match['players2'],
+                match['score1'],
+                match['score2'],
+                dateutil.parser.parse(match['when'])
+            ))
+    return matchObjs
 
 
-def _commitback():
-    if _dbhandle is None:
-        raise Exception("Handle is None?")
-    pickle.dump(_dbhandle, open(_dbfile, 'w'))
+def getrecent(f, n=3):
+    return sorted(getmatches(f), key=lambda x: x.when, reverse=True)[:n]
 
 
-def _newdb():
-    return {'matches': {}}
-
-
-def getrankings():
-    return ranking.getRankings(_getdb()['matches'].values())
-
-
-def getmatches():
-    return _getdb()['matches'].values()
-
-
-def getrecent(n=3):
-    return sorted(_getdb()['matches'].values(),
-                  key=lambda x: x.when, reverse=True)[:n]
-
-
-def getgamecounts():
-    matches = getmatches()
+def getgamecounts(f):
+    matches = getmatches(f)
     r = collections.defaultdict(int)
     for m in matches:
         for p in m.players1 + m.players2:
@@ -53,8 +39,8 @@ def getgamecounts():
     return r
 
 
-def getlastgame(uid):
-    matches = getmatches()
+def getlastgame(f, uid):
+    matches = getmatches(f)
     times = []
     for m in matches:
         if uid in m.players1 + m.players2:
@@ -62,8 +48,8 @@ def getlastgame(uid):
     return sorted(times, key=lambda x: x.when)[-1]
 
 
-def getlastgameall():
-    matches = getmatches()
+def getlastgameall(f):
+    matches = getmatches(f)
     latest = collections.defaultdict(lambda: datetime.datetime(1900, 1, 1))
     for m in matches:
         for uid in m.players1 + m.players2:
@@ -72,18 +58,17 @@ def getlastgameall():
     return latest
 
 
-def _newid():
-    return str(uuid.uuid4())
+def addmatch(firebase, m):
+    data = {
+        'players1': m.players1,
+        'players2': m.players2,
+        'score1': m.score1,
+        'score2': m.score2,
+        'when': m.when
+    }
+    snapshot = firebase.post('/matches', data)
+    return snapshot['name']
 
 
-def addmatch(m):
-    mid = _newid()
-
-    _getdb()['matches'][mid] = m
-    _commitback()
-    return mid
-
-
-def deletematch(mid):
-    del _getdb()['matches'][mid]
-    _commitback()
+def deletematch(firebase, mid):
+    firebase.delete('/matches', mid)

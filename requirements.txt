@@ -1,9 +1,10 @@
 numpy==1.11.1
+python-dateutil==2.5.3
+python-firebase==1.2
 PyYAML==3.11
 requests==2.10.0
 scipy==0.17.1
 six==1.10.0
 slacker==0.9.21
 Theano==0.8.2
-uuid==1.30
 websocket-client==0.37.0

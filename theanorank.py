@@ -49,7 +49,7 @@ def buildMatrices(matches, uids):
     t1_r = numpy.zeros((len(matches), len(uids)))
     t2_r = numpy.zeros((len(matches), len(uids)))
     gw_r = numpy.zeros(len(matches))
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
     w_coeff = - math.log(0.5) / (60*60*24*7.0)
 
     for i, m in enumerate(matches):

@@ -23,7 +23,7 @@ def simpleResp(text):
     return [simpleMsg(text)]
 
 
-def processSubmit(args):
+def processSubmit(f, args):
     p1 = []
     p2 = []
 
@@ -73,9 +73,9 @@ def processSubmit(args):
         if min(s1, s2) < 0:
             return simpleResp("")
 
-        m = core.Match(p1, p2, s1, s2, datetime.datetime.now())
+        m = core.Match(p1, p2, s1, s2, datetime.datetime.utcnow())
 
-        mid = loldb.addmatch(m)
+        mid = loldb.addmatch(f, m)
 
         return simpleResp("Match %s successfully submitted" % (mid))
 
@@ -104,7 +104,7 @@ def formatRanking(slack, d, mc, lastg):
 
     allusers = slack.users.list().body
 
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
     daysall = datetime.timedelta(days=150)
     days10 = datetime.timedelta(days=7)
 
@@ -161,7 +161,7 @@ def getNiceName(allusers, uid):
 
 
 def getTimeSinceDesc(w):
-    delta = datetime.datetime.now() - w
+    delta = datetime.datetime.utcnow() - w
 
     if delta.days > 0:
         return "%i days ago" % (delta.days)
@@ -184,14 +184,14 @@ def formatMatch(allusers, m):
     return '%s vs %s %i - %i (%s)' % (part1, part2, m.score1, m.score2, tsd)
 
 
-def processRank(slack, args):
-    m = loldb.getmatches()
+def processRank(f, slack, args):
+    m = loldb.getmatches(f)
     # d = ranking.getRankings(m)
     td = theanorank.getRanking(m)
     # print d
     # print td
-    mc = loldb.getgamecounts()
-    lastg = loldb.getlastgameall()
+    mc = loldb.getgamecounts(f)
+    lastg = loldb.getlastgameall(f)
     out = formatRanking(slack, td, mc, lastg)
     # legstr = ''
     # if numpy.min(mc.values()) < 3:
@@ -199,20 +199,20 @@ def processRank(slack, args):
     return simpleResp('```' + '\n'.join(out) + '```')
 
 
-def processDelete(args):
-    loldb.deletematch(args[0])
+def processDelete(f, args):
+    loldb.deletematch(f, args[0])
     return simpleResp("Match deleted!")
 
 
-def processRecent(slack, args):
+def processRecent(f, slack, args):
     allusers = slack.users.list().body
-    rm = loldb.getrecent(3)
+    rm = loldb.getrecent(f, 3)
     fm = lambda m: formatMatch(allusers, m)
     msgt = 'Last 3 games:\n' + '\n'.join(map(fm, rm))
     return simpleResp(msgt)
 
 
-def processStats(slack, args, user):
+def processStats(f, slack, args, user):
     if len(args) == 0:
         uid = user
     elif len(args) != 1:
@@ -227,14 +227,14 @@ def processStats(slack, args, user):
 
     allusers = slack.users.list().body
 
-    m = loldb.getmatches()
-    gameCountsList = loldb.getgamecounts()
+    m = loldb.getmatches(f)
+    gameCountsList = loldb.getgamecounts(f)
     if uid in gameCountsList:
         mc = gameCountsList[uid]
     else:
         mc = 0
     if mc != 0:
-        lg = loldb.getlastgame(uid)
+        lg = loldb.getlastgame(f, uid)
         td = theanorank.getRanking(m)
         bw = theanorank.getBestWorst(m, uid)
         r1ta = "Skill level: %.1f" % (10.0 + (10.0 * td[uid]))
@@ -262,8 +262,8 @@ def processStats(slack, args, user):
     return simpleResp('```' + '\n'.join(allt) + '```')
 
 
-def processPredict(args):
-    m = loldb.getmatches()
+def processPredict(f, args):
+    m = loldb.getmatches(f)
     d = theanorank.getRanking(m)
 
     players1 = []
@@ -321,7 +321,7 @@ def processHelp(args):
             return simpleResp("Sorry, I don't know about %s" % args[0])
 
 
-def processMessage(slack, config, _msg):
+def processMessage(slack, config, firebase, _msg):
     try:
 
         _fooschan = config['fooschan']
@@ -367,19 +367,19 @@ def processMessage(slack, config, _msg):
         cmd = args[0]
 
         if cmd.lower() == 'result':
-            return processSubmit(args[1:])
+            return processSubmit(firebase, args[1:])
         elif cmd.lower().startswith('rank'):
-            return processRank(slack, args[1:])
+            return processRank(firebase, slack, args[1:])
         elif cmd.lower().startswith('delete'):
-            return processDelete(args[1:])
+            return processDelete(firebase, args[1:])
         elif cmd.lower().startswith('recent'):
-            return processRecent(slack, args[1:])
+            return processRecent(firebase, slack, args[1:])
         elif cmd.lower().startswith('help'):
             return processHelp(args[1:])
         elif cmd.lower().startswith('predict'):
-            return processPredict(args[1:])
+            return processPredict(firebase, args[1:])
         elif cmd.lower().startswith('stat'):
-            return processStats(slack, args[1:], user)
+            return processStats(firebase, slack, args[1:], user)
         else:
             return simpleResp("I didn't understand the command %s" % (cmd))
 

@@ -107,7 +107,7 @@ def getRankings(matches):
 
     last = 10.0
     alpha = 1.0
-    now = datetime.datetime.now()
+    now = datetime.datetime.utcnow()
     for i in range(100):
         rankguess, move = updateAll(rankguess, matches, uids, alpha, now)
         print alpha, move

@@ -9,10 +9,13 @@ import time
 import sys
 import yaml
 import datetime
+from firebase import firebase
 
 
 config = yaml.load(open('config.yaml'))
 slack = slacker.Slacker(config['slacktoken'])
+authentication = firebase.FirebaseAuthentication(config['firebasesecret'], config['firebaseuser'])
+firebase = firebase.FirebaseApplication(config['firebaseurl'], authentication=authentication)
 
 
 def getniceuser(users, n):
@@ -43,7 +46,7 @@ def mangleconfig(config):
 
 def onrecv(ws, message):
     # print message
-    sendback = slackparser.processMessage(slack, config, message)
+    sendback = slackparser.processMessage(slack, config, firebase, message)
     # print sendback
     for s in sendback:
         s['channel'] = config['fooschan']
@@ -83,12 +86,12 @@ def runSetup():
     mangleconfig(config)
 
     failcount = 0
-    lastfail = datetime.datetime.now()
+    lastfail = datetime.datetime.utcnow()
     while True:
         print "Connecting"
         run_bot()
         print "Connection lost..."
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         timeran = now - lastfail
         lastfail = now
         if timeran.total_seconds() < 3600:
