@@ -236,9 +236,11 @@ def processStats(f, slack, args, user):
     if mc != 0:
         lg = loldb.getlastgame(f, uid)
         td = theanorank.getRanking(m)
+        wp = theanorank.getWinPercentage(m, uid)
         bw = theanorank.getBestWorst(m, uid)
         r1ta = "Skill level: %.1f" % (10.0 + (10.0 * td[uid]))
-        r2ta = "Last match: %s" % (formatMatch(allusers, lg))
+        r2ta = "Win percentage: %.1f" % wp
+        r3ta = "Last match: %s" % (formatMatch(allusers, lg))
 
     nn = getNiceName(allusers, uid)
 
@@ -250,6 +252,7 @@ def processStats(f, slack, args, user):
         allt.append(r1ta)
         allt.append(r2t)
         allt.append(r2ta)
+        allt.append(r3ta)
     else:
         allt.append(r2t)
 

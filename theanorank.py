@@ -140,3 +140,22 @@ def getBestWorst(matches, uid):
                 res.append((shift, m))
 
     return sorted(res, key=lambda x: x[0])
+
+
+def getWinPercentage(matches, uid):
+    wins = 0
+    losses = 0
+
+    for match in matches:
+        if uid in match.players1:
+            if match.score1 > match.score2:
+                wins += 1
+            else:
+                losses += 1
+        elif uid in match.players2:
+            if match.score2 > match.score1:
+                wins += 1
+            else:
+                losses += 1
+
+    return 100.0 * wins / (wins + losses)
