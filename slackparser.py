@@ -200,8 +200,11 @@ def processRank(f, slack, args):
 
 
 def processDelete(f, args):
-    loldb.deletematch(f, args[0])
-    return simpleResp("Match deleted!")
+    successfulDelete = loldb.deletematch(f, args[0])
+    if successfulDelete:
+        return simpleResp("Match deleted!")
+    else:
+        return simpleResp("Match not found!")
 
 
 def processRecent(f, slack, args):
