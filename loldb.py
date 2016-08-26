@@ -70,4 +70,7 @@ def addmatch(firebase, m):
 
 
 def deletematch(firebase, mid):
-    firebase.delete('/matches', mid)
+    if firebase.get('/matches', mid) != None:
+        firebase.delete('/matches', mid)
+        return True
+    return False
