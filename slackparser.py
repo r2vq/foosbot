@@ -11,6 +11,8 @@ import theanorank
 
 _nextid = 1
 
+_minimum_score = 9;
+
 
 def simpleMsg(text):
     global _nextid
@@ -64,10 +66,10 @@ def processSubmit(f, args):
             if s2 < 0:
                 s2 = -s2  # Deal with case where someone writes 2 -10 by mistake
 
-        if max(s1, s2) < 10:
-            return simpleResp("Someone should have scored at least 10 points!")
+        if max(s1, s2) < _minimum_score:
+            return simpleResp("Someone should have scored at least %d points!" % _minimum_score)
 
-        if max(s1, s2) > 10 and abs(s2 - s1) != 2:
+        if max(s1, s2) > _minimum_score and abs(s2 - s1) != 2:
             return simpleResp("Someone should have been two points ahead at the end?")
 
         if min(s1, s2) < 0:
