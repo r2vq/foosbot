@@ -64,10 +64,10 @@ def processSubmit(f, args):
             if s2 < 0:
                 s2 = -s2  # Deal with case where someone writes 2 -10 by mistake
 
-        if max(s1, s2) < 10:
-            return simpleResp("Someone should have scored at least 10 points!")
+        if max(s1, s2) < 9:
+            return simpleResp("Someone should have scored at least 9 points!")
 
-        if max(s1, s2) > 10 and abs(s2 - s1) != 2:
+        if max(s1, s2) > 9 and abs(s2 - s1) != 2:
             return simpleResp("Someone should have been two points ahead at the end?")
 
         if min(s1, s2) < 0:
