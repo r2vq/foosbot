@@ -128,7 +128,7 @@ def _generateGame(sd):
         n = numpy.random.binomial(1, p)
         s[n] += 1
 
-        if max(s) > 9:
+        if max(s) >= 9:
             if abs(s[0] - s[1]) > 1:
                 return s[0], s[1]
 
